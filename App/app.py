@@ -1,36 +1,52 @@
+from cmath import e
 import flask
 from flask import Flask
-from textblob import TextBlob
-from textblob.sentiments import NaiveBayesAnalyzer
+from flask import request
+from flask import abort, jsonify
 import pandas as pd
-import json
 
 
 app = Flask(__name__)
 
+@app.errorhandler(404)
+def resource_not_found(e):
+    return jsonify(error=str(e)), 404
+
+
 @app.route("/")
 def home():
-    return flask.render_template('home.html')
-
+    try:
+        hotels = pd.read_pickle('../Storage/Data/reviews_agg_sentiment.pkl')
+        hotels_names = hotels.index
+        return flask.render_template('home.html', hotels=hotels_names)
+    except:
+        abort(500)
 
 @app.route("/sentiment")
 def sentiment_analysis():
-    hotel_reviews = pd.read_csv('../Storage/Data/reviews.csv')
-    total = {'p_pos':0, 'p_neg':0}
-    data_len = 5
-    for sentce in hotel_reviews.lemmatized.values[:data_len]:
-        blob = TextBlob(sentce, analyzer=NaiveBayesAnalyzer()).sentiment
-        total['p_pos'] += blob.p_pos
-        total['p_neg'] += blob.p_neg
-    total['p_pos'] /= data_len
-    total['p_neg'] /= data_len
-    return flask.render_template('sentiment.html', data=total)
+    hotel = request.args.get('hotel')
+    try:
+        hotels = pd.read_pickle('../Storage/Data/reviews_agg_sentiment.pkl')
+        result = hotels.loc[hotel]
 
+        if(len(result) != 2):
+            abort(400, f"Can't find sentiment for this hotel({hotel})")
+
+        result = {
+            'name': hotel,
+            'classification': 'Positive' if result.p_pos_mean > result.p_neg_mean else 'Negative',
+            'p_pos_mean': result.p_pos_mean,
+            'p_neg_mean': result.p_neg_mean
+        }
+
+        return flask.render_template('sentiment.html', data=result)
+    except:
+        abort(500)
 
 @app.route("/indexing")
 def elastic_search_index():
-    my_dictionary = {'a':'b', 'foo':'baz'}
-    return flask.render_template('indexing.html', data=my_dictionary)
+    hotel = request.args.get('hotel')
+    return hotel
 
 
 if __name__ == '__main__':

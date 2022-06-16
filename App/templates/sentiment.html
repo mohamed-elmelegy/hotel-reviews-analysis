@@ -2,11 +2,12 @@
 <html lang="en-ca">
 
 <body>
-	<h2>Sentiment Analysis</h2>
+	<h2>Aggragated Sentiment Analysis Result For ({{data.name}}) Hotel Reviews</h2>
 	<ul>
-		<!-- <li>Predicted Class: {{data.classification}}</li> -->
-		<li>Positive Class Probability: {{data.p_pos}}</li>
-		<li>Negative Class Probability: {{data.p_neg}}</li>
+		<li><b>Hotel Name:</b> {{data.name}}</li>
+		<li><b>Predicted Class:</b> {{data.classification}}</li>
+		<li><b>Positive Class Probability:</b> {{data.p_pos_mean}}</li>
+		<li><b>Negative Class Probability:</b> {{data.p_neg_mean}}</li>
 	</ul>	
 </body>
 

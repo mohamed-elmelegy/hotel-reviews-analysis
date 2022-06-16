@@ -3,13 +3,26 @@
 
 <body>
 	<div style='margin:auto;'>
-		<h1>Wuzzuf \"Machine Learning\" Task</h1>
+		<h1>Wuzzuf "Machine Learning" Task</h1>
 		<h3>Available Endpoints:</h3>
-		<ul>
-			<li><a href='/sentiment'> BlobText - Sentiment Analysis </a></li>
-			<li><a href='/indexing'> Elastic Search - Indexing </a></li>
-			<!-- <li><a href='/'> My Model - Sentiment Analysis </a></li> -->
-		</ul>
+		<form action="/sentiment" method="get">
+			<select name="hotel" id="hotel_sent">
+				<option value="" selected disabled>Please Select Hotel:</option>
+				{% for hotel in hotels %}
+					<option value="{{hotel}}">{{hotel}}</option>
+				{% endfor %}
+			</select>
+			<input type="submit" value="Sentiment">
+		</form>
+		<form action="/indexing" method="get">
+			<select name="hotel" id="hotel_index">
+				<option value="" selected disabled>Please Select Hotel:</option>
+				{% for hotel in hotels %}
+					<option value="{{hotel}}">{{hotel}}</option>
+				{% endfor %}
+			</select>
+			<input type="submit" value="Elastic Search Indexing">
+		</form>
 	</div>
 </body>
 
