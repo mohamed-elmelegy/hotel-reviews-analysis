@@ -1,12 +1,17 @@
+import pandas as pd
 from cmath import e
 import flask
 from flask import Flask
 from flask import request
 from flask import abort, jsonify
-import pandas as pd
+from elasticsearch import Elasticsearch
+import requests
 
 
 app = Flask(__name__)
+
+# domain name, or server's IP address, goes in the 'hosts' list
+es_client = Elasticsearch(hosts=["http://localhost:9200"])
 
 @app.errorhandler(404)
 def resource_not_found(e):
@@ -43,10 +48,19 @@ def sentiment_analysis():
     except:
         abort(500)
 
-@app.route("/indexing")
+@app.route('/indexing')
 def elastic_search_index():
     hotel = request.args.get('hotel')
+    results =  es_client.indices
+    print(dir(results))
     return hotel
+
+# @app.route("/indexing")
+# def elastic_search_index():
+#     hotel = request.args.get('hotel')
+#     es = Elasticsearch()
+#     results = es.get(index='contents', doc_type='title', id='my-new-slug')
+#     return jsonify(results['_source'])
 
 
 if __name__ == '__main__':
