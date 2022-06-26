@@ -1,31 +1,65 @@
 <!DOCTYPE html>
 <html lang="en-ca">
-
+<head>
+	<style>
+		form {
+			border: 1px solid black;
+			padding: 5px;
+			margin: 20px;
+		}
+		select {
+			width: 35%;
+			margin: 0.20%;
+		}
+	</style>
+</head>
 <body>
 	<div style='margin:auto;'>
-		<h1>Wuzzuf "Machine Learning" Task</h1>
-		<h3>Available Endpoints:</h3>
+		<h2>Wuzzuf "Machine Learning" Task</h2>
 		<form action="/sentiment" method="get">
-			<select name="hotel" id="hotel_sent">
+			<h4>TextBlob Sentiment Analyser</h4>
+			<select name="hotel" id="hotel_sent" required>
 				<option value="" selected disabled>Please Select Hotel:</option>
 				{% for hotel in hotels %}
 					<option value="{{hotel}}">{{hotel}}</option>
 				{% endfor %}
 			</select>
-			<input type="submit" value="Sentiment">
+			<input type="submit" value="TextBlob Sentiment Analyser">
 		</form>
-		<br><hr><br>
+		<hr>
 		<form action="/indexing" method="get">
-			<select name="hotel" id="hotel_index">
+			<h4>Elasticsearch: Get Hotel Document</h4>
+			<select name="hotel" id="hotel_index" required>
 				<option value="" selected disabled>Please Select Hotel:</option>
 				{% for hotel in hotels %}
 					<option value="{{hotel}}">{{hotel}}</option>
 				{% endfor %}
 			</select>
-			<input type="submit" value="Elastic Search Indexing">
+			<input type="submit" value="Elasticsearch Hotel Document">
 		</form>
-		<br><hr><br>
-		<a href="/indexing_all">Show All Indicies</a>
+		<hr>
+		<form action="/indexing_all" method="get">
+			<h4>Elasticsearch: Get N Documents</h4>
+			<input type="number" required style="width:35%;" placeholder="Enter results size as INT. Ex: 25" name="size" id="size" min="1" max="50">
+			<input type="submit" value="Elasticsearch Top N_DOCs!">
+		</form>
+		<hr>
+		<form action="/new_sentiment" method="get">
+			<h4>BOUNUS: A Trained Sentiment Analyser</h4>
+			<select name="hotel" id="hotel_sent" required>
+				<option value="" selected disabled>Please Select Hotel:</option>
+				{% for hotel in hotels %}
+					<option value="{{hotel}}">{{hotel}}</option>
+				{% endfor %}
+			</select>
+			
+			<select name="classifier" id="classifier" required>
+				<option value="" selected disabled>Please Select Classifier:</option>
+				<option value="MultinomialNB">MultinomialNB</option>
+			</select>
+			
+			<input type="submit" value="My Trained Sentiment Analyser">
+		</form>
 	</div>
 </body>
 

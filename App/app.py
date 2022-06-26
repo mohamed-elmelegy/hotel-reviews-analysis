@@ -1,3 +1,4 @@
+from elasticsearch import Elasticsearch
 import pandas as pd
 from cmath import e
 import flask
@@ -5,10 +6,12 @@ from flask import Flask
 from flask import request
 from flask import abort, jsonify
 from ElasticsearchService import ElasticsearchService
+from SentimentClassifier import SentimentClassifier
 
 
 app = Flask(__name__)
 es = ElasticsearchService()
+ELASTICSEARCH_INDEX_NAME = 'demo-hotels-1'
 
 @app.errorhandler(404)
 def resource_not_found(e):
@@ -38,7 +41,8 @@ def sentiment_analysis():
             'name': hotel,
             'classification': 'Positive' if result.p_pos_mean > result.p_neg_mean else 'Negative',
             'p_pos_mean': result.p_pos_mean,
-            'p_neg_mean': result.p_neg_mean
+            'p_neg_mean': result.p_neg_mean,
+            'model': f'TextBlob Built-in Model'
         }
 
         return flask.render_template('sentiment.html', data=result)
@@ -48,12 +52,37 @@ def sentiment_analysis():
 @app.route('/indexing')
 def elastic_search_doc():
     hotel = request.args.get('hotel')
-    return jsonify(es.get_doc('demo-hotels-1', 'Arion'))
+    return jsonify(es.get_doc(ELASTICSEARCH_INDEX_NAME, hotel))
 
 
 @app.route('/indexing_all')
 def elastic_search_index():
-    return jsonify(es.get_head('demo-hotels-1', 25))
+    result_size = request.args.get('size')
+    return jsonify(es.get_head(ELASTICSEARCH_INDEX_NAME, result_size))
+
+@app.route('/new_sentiment')
+def new_sentiment_analysis():
+    model_name = request.args.get('classifier')
+    hotel = request.args.get('hotel')
+    try:
+        hotels = pd.read_pickle('../Storage/Data/preprocessed_reviews.pkl')
+        reviews = hotels.groupby('name').get_group(hotel).lemmatized
+        lens = reviews.shape[0]
+        if(lens == 0):
+            abort(400, f"Can't find sentiment for this hotel({hotel})")
+        classifier = SentimentClassifier(model_name)
+        sentiments = classifier.predict_sentiment(reviews)
+        result = pd.DataFrame(sentiments, columns=['Positive_prob', 'Negative_prob']).mean()
+        result = {
+            'name': hotel,
+            'classification': 'Positive' if result.Positive_prob > result.Negative_prob else 'Negative',
+            'p_pos_mean': result.Positive_prob,
+            'p_neg_mean': result.Negative_prob,
+            'model': f'New Trained ({model_name})'
+        }
+        return flask.render_template('sentiment.html', data=result)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':

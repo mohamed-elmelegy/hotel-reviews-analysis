@@ -33,7 +33,7 @@ class ElasticsearchService:
             raise "Something went wrong!"
 
 
-    def get_head(self, index_name='demo-hotels-1', size=10):
+    def get_head(self, index_name, size=10):
         """
             Retrieve all hotels info from Elasticsearch index
         """
@@ -52,7 +52,7 @@ class ElasticsearchService:
         return result['hits']['hits']
 
 
-    def get_doc(self, index_name='demo-hotels-1', hotel_name=''):
+    def get_doc(self, index_name, hotel_name=''):
         """
             Retrieve specific hotel info from Elasticsearch index
         """
@@ -69,5 +69,5 @@ class ElasticsearchService:
             pretty=True
         )
 
-        return result['hits']['hits']
+        return result['hits']['hits'][0]['_source']
     
